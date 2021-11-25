@@ -1,31 +1,28 @@
 const express = require('express')
 const https = require('https')
 const fs = require('fs')
-const app = express()
 const cors = require('cors')
-const dotenv = require('dotenv')
-const mercadopago = require('mercadopago')
-dotenv.config()
 
+const dotenv = require('dotenv')
+
+const app = express()
 const privateKey  = fs.readFileSync('./.cert/key.pem', 'utf8');
 const certificate = fs.readFileSync('./.cert/cert.pem', 'utf8');
 const credentials = {key: privateKey, cert: certificate};
 
-
-const httpsServer = https.createServer(credentials, app);
-
-const TOKEN = process.env.PRODUCTION_ACCESS_TOKEN
-mercadopago.configurations.setAccessToken(TOKEN)
-
+dotenv.config()
 
 const process_payment_route = require('./routers/payment_process')
 const response_paymentStatus_routes = require('./routers/responsePaymentStatus')
 
 
+app.use('/',process_payment_route)
+app.use('/',response_paymentStatus_routes)
+
 app.use(cors)
 app.use(express.json)
-app.use(process_payment_route)
-app.use(response_paymentStatus_routes)
+
+const httpsServer = https.createServer(credentials, app);
 
 
 httpsServer.listen(4000,()=>{
