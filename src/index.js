@@ -14,16 +14,19 @@ const credentials = {key: privateKey, cert: certificate};
 
 const httpsServer = https.createServer(credentials, app);
 
-const process_payment_route = require('./routers/payment_process')
+const TOKEN = process.env.PRODUCTION_ACCESS_TOKEN
+mercadopago.configurations.setAccessToken(TOKEN)
 
+
+const process_payment_route = require('./routers/payment_process')
+const response_paymentStatus_routes = require('./routers/responsePaymentStatus')
 
 
 app.use(cors)
 app.use(express.json)
 app.use(process_payment_route)
-const TOKEN = process.env.PRODUCTION_ACCESS_TOKEN
+app.use(response_paymentStatus_routes)
 
-mercadopago.configurations.setAccessToken(TOKEN)
 
 httpsServer.listen(4000,()=>{
   console.log('serve is running')
